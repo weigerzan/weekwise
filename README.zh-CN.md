@@ -2,6 +2,8 @@
 
 [English](README.md) | 中文 · v0.1.0
 
+[下载 Windows 免安装版（x64）](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip)
+
 **你知道要做什么，拾周帮你安排每天做多少。**
 
 **目前仅支持 Windows，应用界面为中文。**
@@ -29,7 +31,9 @@
 
 ## 开始使用
 
-从源码运行需要 Windows、Node.js 22.12 或更新版本，以及 npm：
+**免安装版（推荐）：**[下载压缩包](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip)，完整解压后双击 `Weekwise.exe` 或 `启动拾周.cmd` 即可使用，无需安装 Node.js。整个目录需一起保留，请勿单独移动 exe 文件。
+
+如果需要从源码运行，请准备 Windows、Node.js 22.12 或更新版本，以及 npm：
 
 ```powershell
 npm ci

@@ -2,6 +2,8 @@
 
 English | [中文](README.zh-CN.md) · v0.1.0
 
+[Download Windows portable build (x64)](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip)
+
 **You know what needs doing. Weekwise helps you decide how much to do each day.**
 
 **Currently supports Windows only. The application UI is in Chinese.**
@@ -29,7 +31,9 @@ If all you have is a distant ambition, define the work first. “I want to submi
 
 ## Get started
 
-Running from source requires Windows, Node.js 22.12 or newer, and npm:
+**Portable build (recommended):** [Download the ZIP](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip), extract the whole folder, and double-click `Weekwise.exe` or `启动拾周.cmd`. No installation or Node.js is required. Keep the executable and all accompanying files together.
+
+To run from source instead, use Windows, Node.js 22.12 or newer, and npm:
 
 ```powershell
 npm ci
