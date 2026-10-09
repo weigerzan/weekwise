@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'">
+  <title>拾周 · 桌面浮窗</title>
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="natural.css"><link rel="stylesheet" href="categories.css"><link rel="stylesheet" href="widget.css">
+  <script type="module" src="widget.js"></script>
+</head>
+<body class="widget-page">
+  <header class="widget-titlebar">
+    <span class="widget-brand">拾周<span>今日小清单</span></span>
+    <div>
+      <button id="widget-mode" class="icon-btn" title="切换极简透明模式" aria-label="切换极简透明模式"><span data-icon="leaf"></span></button>
+      <button id="widget-pin" class="icon-btn pinned" title="取消置顶" aria-label="取消置顶"><span data-icon="pin"></span></button>
+      <button id="widget-close" class="icon-btn" title="关闭浮窗" aria-label="关闭浮窗"><span data-icon="x"></span></button>
+    </div>
+  </header>
+  <div class="compact-controls" aria-label="浮窗操作">
+    <span class="compact-grip" title="按住拖动，任务块也可以拖动"><span data-icon="grip"></span></span>
+    <button id="compact-full" class="icon-btn" title="切回完整浮窗" aria-label="切回完整浮窗"><span data-icon="layers"></span></button>
+    <button id="compact-open" class="icon-btn" title="打开完整计划" aria-label="打开完整计划"><span data-icon="grid"></span></button>
+    <button id="compact-close" class="icon-btn" title="关闭浮窗" aria-label="关闭浮窗"><span data-icon="x"></span></button>
+  </div>
+  <section class="widget-heading">
+    <div class="widget-date-row">
+      <button id="widget-prev" class="icon-btn" aria-label="前一天"><span data-icon="chevronLeft"></span></button>
+      <div><strong id="widget-date"></strong><button id="widget-today" class="text-btn">今天</button></div>
+      <button id="widget-next" class="icon-btn" aria-label="后一天"><span data-icon="chevronRight"></span></button>
+    </div>
+    <p id="widget-summary"></p><div class="widget-progress"><span id="widget-progress-fill"></span></div>
+  </section>
+  <section id="widget-tasks" class="widget-tasks" aria-label="任务清单"></section>
+  <p id="widget-error" class="widget-error" hidden></p>
+  <footer class="widget-footer"><span>一步一步，也很棒。</span><button id="widget-open" class="text-btn">打开完整计划 ↗</button></footer>
+</body>
+</html>

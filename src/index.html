@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'">
+  <title>拾周 · 桌面任务助手</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="natural.css"><link rel="stylesheet" href="categories.css">
+  <link rel="stylesheet" href="insights.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="拾周首页"><span class="brand-mark">拾</span><span><strong>拾周</strong><small>把日子安排得刚刚好</small></span></a>
+      <button class="new-task" data-action="new"><span data-icon="plus"></span>新建任务<span class="shortcut">N</span></button>
+      <div class="nav-label">我的空间</div>
+      <nav aria-label="主要导航">
+        <button class="nav-item active" data-section="plan" aria-current="page"><span data-icon="calendar"></span>计划</button>
+        <button class="nav-item" data-section="today" data-view="today"><span data-icon="sun"></span>今日专注<span id="today-count" class="nav-count">0</span></button>
+        <button class="nav-item" data-section="statistics"><span data-icon="layers"></span>统计</button>
+      </nav>
+      <div class="sidebar-tip"><span data-icon="leaf"></span><p>写下一个目标<br>把它变成每天的小步。</p></div>
+      <div class="sidebar-bottom">
+        <div class="local-note"><span class="local-dot"></span><span id="save-status">数据保存在本机</span></div>
+        <button class="nav-item" data-action="settings"><span data-icon="settings"></span>规划设置与备份</button>
+        <div class="profile"><span class="avatar">我</span><div><strong>我的工作空间</strong><small>每一步，都算数。</small></div><span class="version">v0.1.0</span></div>
+      </div>
+    </aside>
+    <main>
+      <header class="topbar"><div class="breadcrumb">我的空间<span>/</span><b id="breadcrumb-title">计划 · 周视图</b></div><div class="topbar-right"><button class="float-btn" data-action="float-compact"><span data-icon="leaf"></span>极简浮窗</button><button class="float-btn" data-action="float"><span data-icon="pin"></span>桌面浮窗</button><span class="offline-pill"><span></span>本地存储</span><button class="icon-btn" data-action="settings" title="规划设置"><span data-icon="settings"></span></button></div></header>
+      <div class="content">
+        <section class="page-heading"><div><div class="eyebrow">A LITTLE PLAN, A BETTER WEEK</div><h1 id="page-title">让这一周，有条不紊<span class="heading-dot">.</span></h1><p id="page-subtitle">把想做的事写下来，把时间留给重要的事。</p></div><div class="heading-actions" role="group" aria-label="自然语言规划与调整"><button class="primary-btn" data-action="natural"><span data-icon="sparkles"></span>自然语言规划</button><button class="secondary-btn" data-action="replan"><span data-icon="calendar"></span>自然语言调整</button></div></section>
+        <nav id="plan-tabs" class="view-tabs" aria-label="计划视图"><button class="active" data-view="week" aria-pressed="true">周视图</button><button data-view="month" aria-pressed="false">月视图</button></nav>
+        <nav id="statistics-tabs" class="view-tabs" aria-label="统计视图" hidden><button data-view="activity" aria-pressed="false">工作时长</button><button data-view="all" aria-pressed="false">全部任务<span id="all-count" class="tab-count">0</span></button><button data-view="done" aria-pressed="false">已完成<span id="done-count" class="tab-count">0</span></button></nav>
+        <section class="natural-banner"><span data-icon="sparkles"></span><div><strong>新增目标用「规划」，临时变更用「调整」</strong><p>规划：7 天内审完 7 篇稿件。调整：周日只工作 2 小时，其余任务后移。</p></div></section>
+        <section class="stats" id="stats" aria-label="任务统计"></section>
+        <section class="workspace-toolbar"><div class="week-control"><button class="icon-btn" data-action="prev-week" title="上一周"><span data-icon="chevronLeft"></span></button><strong id="week-label"></strong><button class="icon-btn" data-action="next-week" title="下一周"><span data-icon="chevronRight"></span></button><button class="text-btn" data-action="this-week">本周</button></div><div class="tools"><button class="secondary-btn day-plan-entry" data-action="dayplan"><span data-icon="clock"></span>帮我规划这一天</button><label class="search-box"><span data-icon="search"></span><input id="search" placeholder="搜索任务…" aria-label="搜索任务"><kbd>Ctrl K</kbd></label><button type="button" id="view-switch" class="view-pill" data-action="toggle-plan-view" title="切换到月视图" aria-label="当前周视图，点击切换到月视图"><span data-icon="grid"></span><span id="view-label">周视图</span><span class="view-switch-hint" aria-hidden="true">切换</span></button></div></section>
+        <div id="filter-bar" class="filter-bar" hidden></div>
+        <div id="category-legend" class="category-legend" aria-label="任务类别颜色图例" hidden></div>
+        <div id="main-view"></div>
+        <section id="backlog-section" class="backlog-section"></section>
+        <footer class="page-footer"><span><span data-icon="leaf"></span>合理安排，也记得给自己留白。</span><span id="footer-tip">拖动任务可调整日期和同日顺序 · 点击卡片编辑</span></footer>
+      </div>
+    </main>
+  </div>
+  <dialog id="task-dialog" class="modal task-modal">
+    <form id="task-form">
+      <div class="modal-header"><div><span class="eyebrow">MAKE ROOM FOR WHAT MATTERS</span><h2 id="task-dialog-title">添加一件想做的事</h2></div><button type="button" class="icon-btn" data-close="task-dialog" aria-label="关闭"><span data-icon="x"></span></button></div>
+      <label class="field">任务名称<input id="task-title" required maxlength="150" placeholder="例如：完成项目方案初稿" autocomplete="off"></label>
+      <label class="field">类别<span class="optional">可选</span><select id="task-category"></select></label>
+      <label class="field">优先级<select id="task-priority"><option value="high">高优先级</option><option value="medium" selected>中优先级</option><option value="low">低优先级</option></select></label>
+      <label class="field" id="task-actual-field" hidden>实际耗时（分钟）<span class="optional">可选，留空清除记录</span><input id="task-actual" type="number" min="1" max="10080" step="1" placeholder="完成后可补填或修改"></label>
+      <label class="field" id="task-completed-field" hidden>实际完成日期<span class="optional">用于工作时长统计，可修正旧记录</span><input id="task-completed-on" type="date"></label>
+      <div class="form-row"><label class="field">预计耗时（分钟）<input id="task-minutes" type="number" required min="5" max="1440" step="5" value="60"></label><label class="field">截止日期<span class="optional">可选</span><input id="task-due" type="date"></label></div>
+      <label class="field">安排日期<span class="optional">留空则放入待安排</span><input id="task-scheduled" type="date"></label>
+      <label class="check-field"><input type="checkbox" id="task-timed"><span data-icon="clock"></span>定时任务（组会、面试等）</label>
+      <fieldset id="task-time-fields" class="time-fields" hidden>
+        <div class="form-row"><label class="field">开始时间<input id="task-start-time" type="time"></label><label class="field">结束时间<input id="task-end-time" type="time"></label></div>
+        <div class="reminder-label">提前提醒 <button type="button" class="text-btn" id="task-test-reminder">试响一下</button></div>
+        <div class="reminder-options"><label><input type="checkbox" name="task-reminder" value="720">半天（12 小时）</label><label><input type="checkbox" name="task-reminder" value="120">2 小时</label><label><input type="checkbox" name="task-reminder" value="30">30 分钟</label><label><input type="checkbox" name="task-reminder" value="0">开始时</label></div>
+        <p class="small-note">弹窗加提示音。有提醒时，关闭窗口后会在托盘继续运行；托盘右键可退出。</p>
+      </fieldset>
+      <label class="check-field"><input type="checkbox" id="task-locked"><span data-icon="lock"></span>锁定日期标记，普通任务仍可手动或自然语言调整</label>
+      <label class="field">备注<span class="optional">可选</span><textarea id="task-notes" rows="3" maxlength="3000" placeholder="补充步骤、想法，或需要准备的东西…"></textarea></label>
+      <p id="task-warning" class="inline-warning" hidden></p>
+      <div class="modal-footer"><button type="button" id="delete-task" class="danger-text" hidden>删除任务</button><div class="modal-footer-actions"><button type="button" class="secondary-btn" data-close="task-dialog">取消</button><button type="submit" class="primary-btn">保存任务</button></div></div>
+    </form>
+  </dialog>
+  <dialog id="natural-dialog" class="modal natural-modal">
+    <div class="modal-header"><div><span class="eyebrow">ONE GOAL, SMALL DAILY STEPS</span><h2>描述目标，拆成每天的小任务</h2></div><button class="icon-btn" data-close="natural-dialog" aria-label="关闭"><span data-icon="x"></span></button></div>
+    <p class="modal-description">告诉我任务总量、时间要求和你的偏好。AI 会结合已有安排，生成每天可单独打勾的任务。</p>
+    <form id="natural-form"><label class="field">我想完成什么<textarea id="natural-description" rows="4" maxlength="3000" required placeholder="需要审7篇ICLR稿件。不要集中一天审完，但7天内要审完。一个稿子大概至少1小时，不熟悉的2h。"></textarea></label><div class="form-row"><label class="field">从哪天开始<input id="natural-start" type="date" required></label><div class="natural-hint">“7 天内”包含起始日，可跨周安排。<br>生成前会参考每日可用时长。</div></div><div class="natural-actions"><button type="button" class="text-btn" id="natural-example">填入审稿示例</button><button type="submit" class="primary-btn" id="natural-generate"><span data-icon="sparkles"></span>拆分并安排</button></div></form>
+    <p id="natural-stale" class="small-note" hidden>当前显示的是上一次的规划，可对照修改输入。点击「拆分并安排」后更新。</p>
+    <div id="natural-preview" aria-live="polite"></div>
+    <div class="modal-footer"><span class="small-note">预览后再添加，每天一条独立待办</span><div class="modal-footer-actions"><button class="secondary-btn" data-close="natural-dialog">取消</button><button id="natural-apply" class="primary-btn" disabled>添加每日任务</button></div></div>
+  </dialog>
+  <dialog id="day-plan-dialog" class="modal natural-modal">
+    <div class="modal-header"><div><span class="eyebrow">ONE DAY, A WORKABLE RHYTHM</span><h2>帮我规划这一天</h2></div><button class="icon-btn" data-close="day-plan-dialog" aria-label="关闭"><span data-icon="x"></span></button></div>
+    <p class="modal-description">按基础作息与当天任务的预计耗时安排工作时段。当天的特殊要求会覆盖对应的基础设置；长任务可以分段，仍保留一个完成勾选框。可明确说明两个任务在某段时间能同时做，例如「组会的后一个小时可以用来批改考试题」。</p>
+    <p id="day-plan-base" class="day-base-note"></p><button type="button" class="text-btn" data-action="dayplan-settings">修改基础作息</button>
+    <form id="day-plan-form"><label class="field">要规划哪一天<input id="day-plan-date" type="date" required></label><p class="small-note" id="day-plan-count"></p><label class="field">这一天有什么不同，或有什么偏好？<span class="optional">可选，留空按基础作息</span><textarea id="day-plan-description" rows="3" maxlength="3000" placeholder="今天8点开始，下午3-5有别的事，晚上8点之后不能工作。优先审稿，较长任务可分段。"></textarea></label><div class="natural-actions"><button type="button" class="text-btn" id="day-plan-example">填入当天例外示例</button><button type="submit" class="primary-btn" id="day-plan-generate"><span data-icon="sparkles"></span>安排时段</button></div></form>
+    <p id="day-plan-stale" class="small-note" hidden>保留上一次的安排供对照。再次点击「安排时段」后更新。</p><div id="day-plan-preview" aria-live="polite"></div>
+    <div class="modal-footer"><button class="danger-text" id="day-plan-clear" hidden>清除当天时段</button><div class="modal-footer-actions"><button class="secondary-btn" data-close="day-plan-dialog">取消</button><button class="primary-btn" id="day-plan-apply" disabled>应用当天时段</button></div></div>
+  </dialog>
+  <dialog id="replan-dialog" class="modal natural-modal">
+    <div class="modal-header"><div><span class="eyebrow">CHANGE THE PLAN, KEEP THE GOAL</span><h2>用一句话，调整已有规划</h2></div><button class="icon-btn" data-close="replan-dialog" aria-label="关闭"><span data-icon="x"></span></button></div>
+    <p class="modal-description">未完成任务可重新安排，包括先前锁定的普通任务。也可以明确要求修改某个定时任务的日期和时段；已完成任务保留。排不下时会说明需要放宽的条件。</p>
+    <form id="replan-form">
+      <label class="field">我想怎么调整<textarea id="replan-description" rows="3" maxlength="3000" required placeholder="周天我想把总工作时长压缩到2h，其它任务往后排，定时任务不能动。"></textarea></label>
+      <p id="replan-reference" class="small-note"></p>
+      <label class="field">最晚可以安排到<input id="replan-through" type="date" required></label>
+      <div class="natural-actions"><button type="button" class="text-btn" id="replan-example">填入周日调整示例</button><button type="submit" class="primary-btn" id="replan-generate"><span data-icon="sparkles"></span>重排并预览</button></div>
+    </form>
+    <p id="replan-stale" class="small-note" hidden>当前显示的是上一次的调整方案，可对照修改输入。再次点击「重排并预览」后更新。</p>
+    <div id="replan-preview" aria-live="polite"></div>
+    <div class="modal-footer"><span class="small-note">预览日期和时长变化后再应用，可撤销</span><div class="modal-footer-actions"><button class="secondary-btn" data-close="replan-dialog">取消</button><button class="primary-btn" id="replan-apply" disabled>应用调整</button></div></div>
+  </dialog>
+  <dialog id="plan-dialog" class="modal">
+    <div class="modal-header"><div><span class="eyebrow">A WEEK THAT WORKS FOR YOU</span><h2>为这一周找到合适的节奏</h2></div><button class="icon-btn" data-close="plan-dialog" aria-label="关闭"><span data-icon="x"></span></button></div>
+    <div class="plan-provider-row"><span id="plan-provider" class="provider-badge">本地规则规划</span><button class="text-btn" id="plan-local" hidden>使用本地规划</button></div>
+    <p class="modal-description">优先考虑截止日期，再结合优先级平衡每日负荷。已完成、锁定日期和其他周的任务会保留。</p>
+    <div id="plan-preview"></div>
+    <div class="modal-footer"><button class="text-btn" data-action="plan-settings">调整可用时长</button><div class="modal-footer-actions"><button class="secondary-btn" data-close="plan-dialog">取消</button><button id="apply-plan" class="primary-btn">应用这份计划</button></div></div>
+  </dialog>
+  <dialog id="settings-dialog" class="modal settings-modal">
+    <form id="settings-form" novalidate>
+      <div class="modal-header"><div><span class="eyebrow">YOUR TIME, YOUR PACE</span><h2>规划设置与备份</h2></div><button type="button" class="icon-btn" data-close="settings-dialog" aria-label="关闭"><span data-icon="x"></span></button></div>
+      <p class="modal-description">每天愿意留给任务的时间。设为 0 表示休息日；这些设置适用于每一周。</p>
+      <div id="capacity-fields" class="capacity-fields"></div>
+      <div class="settings-divider"></div><h3>任务类别</h3><p class="modal-description">用自然语言描述每个类别，DeepSeek 规划时判断归属。任务用类别颜色标识；匹配不上可保持未分类，已有类别会保留。删除类别只移除标识，保留任务。</p><div id="category-fields"></div><button type="button" class="text-btn" id="category-add">+ 添加类别</button>
+      <div class="settings-divider"></div><h3>一天的基础作息</h3><p class="modal-description">保存通常的上班、下班和吃饭休息时间。「帮我规划这一天」会使用这些设置，当天例外可用自然语言单独说明。</p>
+      <div class="form-row"><label class="field">上班 / 最早开始<input type="time" id="routine-start" required></label><label class="field">下班 / 最晚结束<input type="time" id="routine-end" required></label></div>
+      <div id="routine-breaks"></div><button type="button" class="text-btn" id="routine-add-break">+ 添加吃饭或休息时间</button>
+      <label class="field">日常作息补充<span class="optional">可选</span><textarea id="routine-preferences" rows="2" maxlength="3000" placeholder="例如：每工作1小时休息10分钟；较难的任务尽量上午做。"></textarea></label>
+      <div class="settings-divider"></div><section id="ai-section"><h3>DeepSeek AI 规划</h3><p class="modal-description">点击自然语言规划或调整时，将描述、相关任务信息、类别定义和规划偏好发送给 DeepSeek。API 调用使用你的账户额度。</p><label class="field">API 密钥<span class="optional" id="ai-connection">尚未配置</span><input id="ai-key" type="password" placeholder="粘贴密钥；留空保留已有密钥" autocomplete="off" maxlength="300"></label><label class="field">选择模型<select id="ai-model" required><option value="deepseek-flash">DeepSeek V4.1 Flash（推荐 · 日常规划）</option><option value="deepseek-v4-pro">DeepSeek V4 Pro（备选 · 费用较高）</option><option value="custom">自定义模型名称</option></select></label><p id="ai-model-hint" class="small-note"></p><label class="field" id="ai-model-custom-field" hidden>自定义模型名称<input id="ai-model-custom" maxlength="80" pattern="(?:[a-zA-Z0-9._]|-){1,80}" placeholder="填写 API 支持的模型名称" disabled></label><div class="key-info"><span>密钥使用 Windows 加密保存在本机，不包含在备份中。</span><button type="button" class="danger-text" id="remove-key">移除密钥</button></div></section><label class="field">规划偏好<span class="optional">供 AI 参考</span><textarea id="ai-preferences" rows="2" maxlength="2000" placeholder="例如：周末尽量少安排工作；学习任务不要集中在同一天。"></textarea></label>
+      <div class="settings-divider"></div><h3>你的任务，由你保管</h3><p class="modal-description">自动保存在本机。可以导出备份，也可以从备份恢复。</p>
+      <div class="backup-actions"><button type="button" class="secondary-btn" data-action="export"><span data-icon="download"></span>导出备份</button><button type="button" class="secondary-btn" data-action="import"><span data-icon="upload"></span>恢复备份</button></div>
+      <div class="settings-divider"></div><div class="sample-row"><div><h3>先体验一下？</h3><p class="modal-description">添加一组示例任务，看看一周计划的样子。</p></div><button type="button" class="text-btn" data-action="demo">添加示例</button></div>
+      <div class="modal-footer"><span class="small-note" id="settings-status" role="status" aria-live="polite">修改后自动保存</span><div class="modal-footer-actions"><button type="button" id="settings-retry" class="text-btn" hidden>重试</button></div></div>
+    </form>
+  </dialog>
+  <dialog id="confirm-dialog" class="modal confirm-modal"><h2 id="confirm-title"></h2><p id="confirm-text" class="modal-description"></p><div class="modal-footer"><button class="secondary-btn" id="confirm-cancel">取消</button><button class="primary-btn" id="confirm-ok">确认</button></div></dialog>
+  <div id="toast" class="toast" role="status" hidden><span id="toast-message"></span><button id="undo-btn" hidden>撤销</button><button class="icon-btn" id="toast-close" aria-label="关闭通知"><span data-icon="x"></span></button></div>
+  <input type="file" id="import-file" accept="application/json,.json" hidden>
+</body>
+</html>

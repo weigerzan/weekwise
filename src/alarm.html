@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'">
+<title>拾周 · 任务提醒</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="alarm.css"><script type="module" src="alarm.js"></script></head>
+<body><header class="alarm-header"><span data-icon="bell"></span><span>拾周 · 任务提醒</span><button id="alarm-close" class="icon-btn" aria-label="关闭提醒"><span data-icon="x"></span></button></header>
+<main class="alarm-content"><div id="alarm-list" aria-live="polite"></div><p id="alarm-error" hidden></p></main>
+<footer class="alarm-actions"><button id="alarm-open" class="secondary-btn">打开计划</button><button id="alarm-dismiss" class="primary-btn">知道了</button></footer></body></html>

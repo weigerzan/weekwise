@@ -1,0 +1,37 @@
+# Dependencies, caches and build output
+node_modules/
+.npm-cache/
+.electron-cache/
+release/
+dist/
+coverage/
+
+# Local task data, test output and credentials
+.preview-data/
+test-results/
+playwright-report/
+blob-report/
+.local/
+.env
+.env.*
+!.env.example
+ai-config.json
+tasks.json
+tasks-*.json
+reminders-fired.json
+widget-settings.json
+*.pem
+*.key
+
+# Temporary files and local editor settings
+tmp/
+temp/
+*.log
+*.tmp
+*.bak
+*.zip
+*.7z
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
