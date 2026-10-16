@@ -9,6 +9,7 @@ import { requestReplan } from './replan.js';
 import { requestDayPlan } from './day-plan.js';
 import { createReminderScheduler, hasUpcomingReminders, reminderKey, testReminderAlert } from './reminders.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const isMac = process.platform === 'darwin';
 protocol.registerSchemesAsPrivileged([{ scheme: 'weekwise', privileges: { standard: true, secure: true, supportFetchAPI: true } }]);
 app.setName('拾周');
 app.setPath('userData', process.env.WEEKWISE_DATA_DIR ? path.resolve(process.env.WEEKWISE_DATA_DIR) : path.join(app.getPath('appData'), 'Weekwise'));
@@ -109,7 +110,7 @@ else {
     if (value.key !== null && (typeof value.key !== 'string' || value.key.length > 300 || /\s/.test(value.key))) throw new Error('API 密钥格式不正确。');
     const config = await readConfig(); config.model = value.model;
     if (value.key !== null) {
-      if (value.key && !safeStorage.isEncryptionAvailable()) throw new Error('Windows 密钥加密暂不可用，请稍后重试。');
+      if (value.key && !safeStorage.isEncryptionAvailable()) throw new Error(isMac ? '钥匙串暂不可用，请解锁 macOS 登录钥匙串后重试。' : '系统密钥加密暂不可用，请稍后重试。');
       config.encryptedKey = value.key ? safeStorage.encryptString(value.key).toString('base64') : null;
     }
     await mkdir(app.getPath('userData'), { recursive: true });
@@ -148,7 +149,8 @@ else {
     return validateState(JSON.parse(text));
   });
   function createWindow() {
-    win = new BrowserWindow({ width: 1480, height: 940, minWidth: 960, minHeight: 680, show: process.env.WEEKWISE_TEST !== '1', title: '拾周 · 桌面任务助手', backgroundColor: '#f7f8fc', autoHideMenuBar: true, webPreferences: { preload: path.join(root, 'desktop', 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true } });
+    const area = screen.getPrimaryDisplay().workArea;
+    win = new BrowserWindow({ width: Math.min(1480, area.width), height: Math.min(940, area.height), minWidth: Math.min(960, area.width), minHeight: Math.min(680, area.height), show: process.env.WEEKWISE_TEST !== '1', title: '拾周 · 桌面任务助手', backgroundColor: '#f7f8fc', autoHideMenuBar: true, webPreferences: { preload: path.join(root, 'desktop', 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true } });
     win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     win.webContents.on('will-navigate', event => event.preventDefault());
     win.loadURL('weekwise://app/index.html');
@@ -156,12 +158,32 @@ else {
   }
   function showMain() { if (!win) createWindow(); else { if (win.isMinimized()) win.restore(); win.show(); win.focus(); } }
   reopenMain = showMain;
+  function mainAction(action) {
+    showMain();
+    const contents = win.webContents;
+    if (contents.isLoadingMainFrame()) contents.once('did-finish-load', () => contents.send('app:action', action));
+    else contents.send('app:action', action);
+  }
+  function configureFloatingWindow(window) {
+    if (!isMac) return;
+    const { x, y } = window.getBounds();
+    window.setFullScreenable(false);
+    window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    // Stage Manager can shift a newly shown auxiliary window into its main stage.
+    // Restore the requested position once, after that initial native placement.
+    window.once('show', () => setImmediate(() => {
+      if (window.isDestroyed()) return;
+      const bounds = window.getBounds(), area = screen.getDisplayMatching({ ...bounds, x, y }).workArea;
+      window.setPosition(Math.max(area.x, Math.min(x, area.x + area.width - bounds.width)), Math.max(area.y, Math.min(y, area.y + area.height - bounds.height)));
+    }));
+  }
   function showAlarm(alerts) {
     if (quitting) return;
     alarmAlerts.push(...alerts);
     if (alarmWindow) { alarmWindow.webContents.send('alarm:changed', alarmAlerts); if (process.env.WEEKWISE_TEST !== '1') { alarmWindow.show(); alarmWindow.focus(); } return; }
     const area = screen.getPrimaryDisplay().workArea;
     alarmWindow = new BrowserWindow({ width: 410, height: 320, x: area.x + area.width - 434, y: area.y + area.height - 344, frame: false, resizable: false, alwaysOnTop: true, show: false, title: '拾周 · 任务提醒', backgroundColor: '#fcfaff', webPreferences: { preload: path.join(root, 'desktop', 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, autoplayPolicy: 'no-user-gesture-required' } });
+    configureFloatingWindow(alarmWindow);
     alarmWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     alarmWindow.webContents.on('will-navigate', event => event.preventDefault());
     alarmWindow.once('ready-to-show', () => { if (process.env.WEEKWISE_TEST !== '1') { alarmWindow.show(); alarmWindow.focus(); } });
@@ -187,6 +209,7 @@ else {
     const y = Math.max(area.y, Math.min(area.y + area.height - height, saved?.y ?? area.y + 96));
     const pinned = old ? old.isAlwaysOnTop() : true;
     const next = new BrowserWindow({ width, height, x, y, minWidth: compact ? 310 : 290, minHeight: compact ? 96 : 260, resizable: !compact, transparent: compact, hasShadow: !compact, show: false, frame: false, alwaysOnTop: pinned, skipTaskbar: compact, title: '拾周 · 桌面浮窗', backgroundColor: compact ? '#00000000' : '#fbfaff', webPreferences: { preload: path.join(root, 'desktop', 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true } });
+    configureFloatingWindow(next);
     widget = next; widgetSettings.mode = mode; saveWidgetSettings();
     next.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     next.webContents.on('will-navigate', event => event.preventDefault());
@@ -217,11 +240,37 @@ else {
   ipcMain.handle('widget:close', event => { trusted(event); if (widget && event.sender === widget.webContents) widget.close(); });
   ipcMain.handle('widget:pin', (event, value) => { trusted(event); if (!widget || event.sender !== widget.webContents || typeof value !== 'boolean') throw new Error('浮窗状态不正确。'); widget.setAlwaysOnTop(value); return widget.isAlwaysOnTop(); });
   ipcMain.handle('main:show', event => { trusted(event); showMain(); });
+  if (isMac) {
+    Menu.setApplicationMenu(Menu.buildFromTemplate([
+      { label: '拾周', submenu: [
+        { role: 'about', label: '关于拾周' },
+        { type: 'separator' },
+        { id: 'settings', label: '设置…', accelerator: 'Cmd+,', click: () => mainAction('settings') },
+        { type: 'separator' }, { role: 'services', label: '服务' },
+        { type: 'separator' }, { role: 'hide', label: '隐藏拾周' }, { role: 'hideOthers', label: '隐藏其他' }, { role: 'unhide', label: '显示全部' },
+        { type: 'separator' }, { role: 'quit', label: '退出拾周（停止提醒）' },
+      ] },
+      { label: '文件', submenu: [{ id: 'new-task', label: '新建任务', accelerator: 'Cmd+N', click: () => mainAction('new') }, { role: 'close', label: '关闭窗口' }] },
+      { role: 'editMenu', label: '编辑' },
+      { label: '窗口', submenu: [
+        { id: 'show-main', label: '打开计划', click: showMain },
+        { label: '桌面浮窗', click: () => openWidget('full') },
+        { label: '极简浮窗', click: () => openWidget('compact') },
+        { type: 'separator' }, { role: 'minimize', label: '最小化' }, { role: 'zoom', label: '缩放' }, { role: 'front', label: '前置全部窗口' },
+      ] },
+    ]));
+    app.setAboutPanelOptions({ applicationName: '拾周 · Weekwise', applicationVersion: app.getVersion(), iconPath: path.join(root, 'src', 'app-icon.png') });
+    if (!app.isPackaged) app.dock?.setIcon(path.join(root, 'src', 'app-icon.png'));
+    app.dock?.setMenu(Menu.buildFromTemplate([{ label: '打开计划', click: showMain }, { label: '极简浮窗', click: () => openWidget('compact') }]));
+  }
   createWindow();
-  tray = new Tray(nativeImage.createFromPath(path.join(root, 'src', 'tray.png')));
+  const trayImage = nativeImage.createFromPath(path.join(root, 'src', isMac ? 'trayTemplate.png' : 'tray.png'));
+  if (isMac) trayImage.setTemplateImage(true);
+  tray = new Tray(trayImage);
   tray.setToolTip('拾周 · 任务与定时提醒');
   tray.setContextMenu(Menu.buildFromTemplate([{ label: '打开拾周', click: showMain }, { label: '极简浮窗', click: () => openWidget('compact') }, { type: 'separator' }, { label: '退出拾周（停止提醒）', click: () => app.quit() }]));
-  tray.on('click', showMain);
+  // On macOS a click opens the status menu; do not also steal focus from it.
+  if (!isMac) tray.on('click', showMain);
   try { await scheduler.load(); reminderEnabled = true; }
   catch (error) { reminderError = `提醒记录无法读取，提醒暂时停用。请检查 ${path.join(app.getPath('userData'), 'reminders-fired.json')}。${error.message}`; console.error(reminderError); }
   try { reminderState = await store.read(); } catch (error) { console.error(error.message); }
@@ -231,7 +280,7 @@ else {
     event.preventDefault(); quitting = true; clearInterval(reminderTimer); clearTimeout(widgetSaveTimer); saveWidgetSettings();
     Promise.allSettled([widgetWrite, scheduler.idle()]).finally(() => { tray?.destroy(); app.quit(); });
   });
-  app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWindow(); });
-  app.on('window-all-closed', () => { if (!reminderEnabled || !hasUpcomingReminders(reminderState)) app.quit(); });
+  app.on('activate', showMain);
+  app.on('window-all-closed', () => { if (!isMac && (!reminderEnabled || !hasUpcomingReminders(reminderState))) app.quit(); });
   }).catch(error => { console.error(error); app.exit(1); });
 }

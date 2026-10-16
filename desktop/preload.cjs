@@ -1,5 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('desktop', {
+  platform: process.platform,
+  onAction: callback => { const listener = (_event, action) => callback(action); ipcRenderer.on('app:action', listener); return () => ipcRenderer.removeListener('app:action', listener); },
   read: () => ipcRenderer.invoke('tasks:read'),
   save: (state, previous) => ipcRenderer.invoke('tasks:save', state, previous),
   completeTask: (id, actualMinutes) => ipcRenderer.invoke('tasks:complete', id, actualMinutes),

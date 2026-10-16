@@ -1,17 +1,21 @@
 {
   "name": "weekwise-desktop",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
-  "description": "拾周 · Windows 桌面任务助手",
+  "description": "拾周 · macOS 与 Windows 桌面任务助手",
   "type": "module",
   "main": "desktop/main.js",
   "scripts": {
     "start": "electron .",
     "preview": "node scripts/preview.js",
     "test": "node --test tests/*.test.js",
-    "package": "node scripts/package.js"
+    "package": "node scripts/package.js",
+    "icons:mac": "node scripts/mac-icons.js",
+    "test:desktop": "node scripts/smoke-all.cjs"
   },
   "devDependencies": {
-    "electron": "44.7.0"
+    "@electron/packager": "20.3.0",
+    "electron": "44.7.0",
+    "playwright": "1.64.1"
   }
 }

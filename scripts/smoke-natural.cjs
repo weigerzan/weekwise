@@ -10,7 +10,7 @@ const { _electron } = runtimeRequire('playwright');
   await fs.mkdir(dir, { recursive: true });
   const old = { id: 'legacy', title: '已有的小任务', category: 'work', priority: 'medium', minutes: 30, due: null, scheduled: today, locked: false, done: false, notes: '保留旧数据' };
   await fs.writeFile(path.join(dir, 'tasks.json'), JSON.stringify({ version: 1, tasks: [old, { ...old, id: 'finished', title: '以前完成的任务', done: true }], settings: { capacities: [240,240,240,240,240,240,240], preferences: '' } }));
-  const executablePath = process.env.WEEKWISE_EXECUTABLE || path.join(root, 'node_modules', 'electron', 'dist', 'electron.exe');
+  const executablePath = process.env.WEEKWISE_EXECUTABLE || require('electron');
   const app = await _electron.launch({ executablePath, args: process.env.WEEKWISE_EXECUTABLE ? [] : [root], env: { ...process.env, WEEKWISE_TEST: '1', WEEKWISE_DATA_DIR: dir }, timeout: 30000 });
   let page;
   const errors = [];

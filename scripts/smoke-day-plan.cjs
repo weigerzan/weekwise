@@ -16,7 +16,7 @@ const {_electron}=runtimeRequire('playwright');
     {...base,id:'other',title:'明天的任务',scheduled:addDays(date,1)}
   ]};
   await fs.mkdir(directory,{recursive:true});await fs.writeFile(path.join(directory,'tasks.json'),JSON.stringify(initial));
-  const executablePath=process.env.WEEKWISE_EXECUTABLE||path.join(root,'node_modules','electron','dist','electron.exe');
+  const executablePath=process.env.WEEKWISE_EXECUTABLE||require('electron');
   const app=await _electron.launch({executablePath,args:process.env.WEEKWISE_EXECUTABLE?[]:[root],env:{...process.env,WEEKWISE_TEST:'1',WEEKWISE_DATA_DIR:directory},timeout:30000});
   let page;const errors=[];
   try{

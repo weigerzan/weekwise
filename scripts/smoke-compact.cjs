@@ -13,7 +13,7 @@ const { _electron } = runtimeRequire('playwright');
   const tasks = titles.map((title, i) => ({ id: `compact-${i}`, title, priority: 'medium', minutes: 30, due: today, scheduled: today, locked: true, done: false, notes: '' }));
   tasks.push({ ...tasks[0], id: 'other-day', title: '不应出现在今天的任务', scheduled: '2030-01-01' });
   await fs.writeFile(path.join(dir, 'tasks.json'), JSON.stringify({ version: 1, tasks, settings: { capacities: [240,240,240,240,240,240,240], preferences: '' } }));
-  const executablePath = process.env.WEEKWISE_EXECUTABLE || path.join(root, 'node_modules', 'electron', 'dist', 'electron.exe');
+  const executablePath = process.env.WEEKWISE_EXECUTABLE || require('electron');
   const launch = () => _electron.launch({ executablePath, args: process.env.WEEKWISE_EXECUTABLE ? [] : [root], env: { ...process.env, WEEKWISE_TEST: '1', WEEKWISE_DATA_DIR: dir }, timeout: 30000 });
   let app = await launch(), page, compact;
   const errors = [];

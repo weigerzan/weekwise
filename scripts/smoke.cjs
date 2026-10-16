@@ -10,7 +10,7 @@ const { _electron } = runtimeRequire('playwright');
   const dir = path.join(root, 'test-results', `smoke-${Date.now()}`);
   await fs.mkdir(dir, { recursive: true });
   console.log('Launching isolated desktop test');
-  const executablePath = process.env.WEEKWISE_EXECUTABLE || path.join(root, 'node_modules', 'electron', 'dist', 'electron.exe');
+  const executablePath = process.env.WEEKWISE_EXECUTABLE || require('electron');
   const app = await _electron.launch({ executablePath, args: process.env.WEEKWISE_EXECUTABLE ? [] : [root], env: { ...process.env, WEEKWISE_TEST: '1', WEEKWISE_DATA_DIR: dir }, timeout: 30000 });
   console.log('Electron connected');
   let page;
@@ -91,7 +91,7 @@ const { _electron } = runtimeRequire('playwright');
     await app.evaluate(({ BrowserWindow }) => { for (const w of BrowserWindow.getAllWindows()) w.showInactive(); });
     await page.screenshot({ path: path.join(root, 'test-results', 'main.png'), fullPage: true });
     await widget.screenshot({ path: path.join(root, 'test-results', 'widget.png') });
-    // DPAPI credentials are encrypted on disk and omitted from task backup.
+    // OS-encrypted credentials are encrypted on disk and omitted from task backup.
     await page.locator('[data-action=settings]').first().click();
     assert.equal(await page.locator('#ai-model').inputValue(), 'deepseek-flash');
     await page.locator('#ai-model').selectOption('deepseek-v4-pro');

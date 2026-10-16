@@ -10,7 +10,7 @@ const { _electron } = runtimeRequire('playwright');
   const d = new Date(); d.setDate(d.getDate()+1);
   const date = value => `${value.getFullYear()}-${String(value.getMonth()+1).padStart(2,'0')}-${String(value.getDate()).padStart(2,'0')}`;
   const tomorrow = date(d); d.setDate(d.getDate()+1); const later = date(d);
-  const executablePath = process.env.WEEKWISE_EXECUTABLE || path.join(root, 'node_modules', 'electron', 'dist', 'electron.exe');
+  const executablePath = process.env.WEEKWISE_EXECUTABLE || require('electron');
   const app = await _electron.launch({ executablePath, args: process.env.WEEKWISE_EXECUTABLE ? ['--mute-audio'] : [root, '--mute-audio'], env: { ...process.env, WEEKWISE_TEST: '1', WEEKWISE_DATA_DIR: dir }, timeout: 30000 });
   let page, alarm; const errors = [];
   const watch = p => { p.setDefaultTimeout(15000); p.on('pageerror', e => errors.push(e.message)); };

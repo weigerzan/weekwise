@@ -21,7 +21,7 @@ const { _electron } = runtimeRequire('playwright');
     { ...task, id: 'interview', title: '可灵面试', due: today, scheduled: today, timeSlot: { start: '19:00', end: '20:00', reminders: [] } }
   ] };
   await fs.mkdir(dir, { recursive: true }); await fs.writeFile(path.join(dir, 'tasks.json'), JSON.stringify(initial));
-  const executablePath = process.env.WEEKWISE_EXECUTABLE || path.join(root, 'node_modules', 'electron', 'dist', 'electron.exe');
+  const executablePath = process.env.WEEKWISE_EXECUTABLE || require('electron');
   const app = await _electron.launch({ executablePath, args: process.env.WEEKWISE_EXECUTABLE ? ['--mute-audio'] : [root,'--mute-audio'], env: { ...process.env, WEEKWISE_TEST: '1', WEEKWISE_DATA_DIR: dir }, timeout: 30000 });
   let page; const errors = [];
   try {
@@ -31,7 +31,7 @@ const { _electron } = runtimeRequire('playwright');
     await app.evaluate(({ BrowserWindow }) => { for (const w of BrowserWindow.getAllWindows()) w.showInactive(); });
     await page.locator('[data-action=settings]').first().click(); await page.locator('#ai-key').fill('fake-replan-test-key');
     await page.locator('#settings-dialog [data-close=settings-dialog]').click(); await page.locator('#settings-dialog').waitFor({ state: 'hidden' });
-    const baseline = await page.evaluate(() => window.desktop.read()); assert.deepEqual(baseline.tasks, validateState(initial).tasks); assert.deepEqual(baseline.settings.dailyRoutine,{start:'10:30',end:'21:00',breaks:[{title:'午饭',start:'12:00',end:'13:30'},{title:'晚饭',start:'18:00',end:'19:30'}]});
+    const baseline = await page.evaluate(() => window.desktop.read()); assert.deepEqual(baseline.tasks, validateState(initial).tasks); assert.deepEqual(baseline.settings, validateState(initial).settings); // Editing only the API key must not persist unrelated default settings.
     await app.evaluate(({ net }, dates) => {
       globalThis.replanOriginalFetch = net.fetch; globalThis.replanCalls = 0; globalThis.replanMode = 'feasible'; globalThis.replanInputs = [];
       net.fetch = async (url, options) => {

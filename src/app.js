@@ -416,8 +416,8 @@ document.addEventListener('click', async event => {
     if (window.desktop) { try { const next = await api.importBackup(); if (next) await restoreBackup(next); } catch (e) { toast(`恢复失败：${e.message}`); } }
     else $('import-file').click();
   }
-  if (action === 'float') { if (window.desktop) await api.openWidget(); else toast('桌面浮窗请在 Windows 客户端中打开。'); }
-  if (action === 'float-compact') { if (window.desktop) await api.openWidget('compact'); else toast('透明浮窗请在 Windows 客户端中打开。'); }
+  if (action === 'float') { if (window.desktop) await api.openWidget(); else toast('桌面浮窗请在桌面客户端中打开。'); }
+  if (action === 'float-compact') { if (window.desktop) await api.openWidget('compact'); else toast('透明浮窗请在桌面客户端中打开。'); }
   if (action === 'demo') {
     if (await confirmAction('添加一组示例任务？', '将向当前所选周添加 11 个示例任务，用于体验规划。你可以修改、删除，或撤销这次添加。')) { const next = clone(state); next.tasks.push(...demoTasks(start)); await commit(next, '示例任务已添加，可以编辑或自然语言调整。'); }
   }
@@ -502,7 +502,7 @@ $('task-form').addEventListener('submit', async event => {
 });
 $('task-title').addEventListener('input', () => $('task-title').setCustomValidity(''));
 $('task-test-reminder').addEventListener('click', async () => {
-  if (!window.desktop) { toast('闹钟提醒请在 Windows 客户端中使用。'); return; }
+  if (!window.desktop) { toast('闹钟提醒请在桌面客户端中使用。'); return; }
   taskWarning();
   for (const id of ['task-scheduled','task-start-time','task-end-time']) if (!$(id).reportValidity()) return;
   try { await api.testReminder({title:$('task-title').value.trim() || '提醒测试',date:$('task-scheduled').value,start:$('task-start-time').value,end:$('task-end-time').value}); }
@@ -627,6 +627,16 @@ $('undo-btn').addEventListener('click', async () => {
 });
 $('toast-close').onclick = () => { $('toast').hidden = true; };
 hydrateIcons();
+if (window.desktop?.platform === 'darwin') {
+  document.querySelector('.search-box kbd').textContent = '⌘ K';
+  document.querySelector('.key-info span').textContent = '密钥通过 macOS 钥匙串加密保存在本机，不包含在备份中。';
+}
+let pendingMenuAction = null;
+window.desktop?.onAction(action => {
+  if (action !== 'settings' && action !== 'new') return;
+  if (ready) document.querySelector(`[data-action="${action}"]`)?.click();
+  else pendingMenuAction = action;
+});
 try {
   state = demoMode ? { ...emptyState(), tasks: demoTasks(start) } : validateState(await api.read());
   if (window.desktop) {
@@ -642,5 +652,6 @@ try {
     });
   }
   ready = true; render(); $('save-status').textContent = demoMode ? '示例预览 · 不保存数据' : '数据保存在本机';
+  if (pendingMenuAction) document.querySelector(`[data-action="${pendingMenuAction}"]`)?.click();
 } catch (error) { $('main-view').innerHTML = `<div class="read-error"><h2>任务数据暂时无法读取</h2><p>${esc(error.message)}</p><p>为保护已有数据，已暂停编辑。请先备份并检查数据文件，再重新打开应用。</p></div>`; }
 setInterval(() => { const d = dateKey(); if (d !== today) { today = d; if (view === 'today') render(); else render(); } }, 30000);

@@ -1,14 +1,14 @@
 # 拾周 · Weekwise
 
-[English](README.md) | 中文 · v0.1.0
+[English](README.md) | 中文 · v0.1.1
 
 [下载 Windows 免安装版（x64）](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip)
 
 **你知道要做什么，拾周帮你安排每天做多少。**
 
-**目前仅支持 Windows，应用界面为中文。**
+**支持 Windows 与 macOS，应用界面为中文。macOS 版本优先面向 Apple Silicon 本机使用。**
 
-一个使用 DeepSeek 规划任务的 Windows 桌面助手。把明确的任务、工作量和大概时间节点告诉它，生成每天可以打勾的小任务；你随时可以手动修改，并记录实际投入。
+一个使用 DeepSeek 规划任务的桌面助手。把明确的任务、工作量和大概时间节点告诉它，生成每天可以打勾的小任务；你随时可以手动修改，并记录实际投入。
 
 ![把繁多任务整理成每天可以完成的计划。](docs/assets/what-weekwise-does.png)
 
@@ -33,12 +33,16 @@
 
 **免安装版（推荐）：**[下载压缩包](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip)，完整解压后双击 `Weekwise.exe` 或 `启动拾周.cmd` 即可使用，无需安装 Node.js。整个目录需一起保留，请勿单独移动 exe 文件。
 
-如果需要从源码运行，请准备 Windows、Node.js 22.12 或更新版本，以及 npm：
+如果需要从源码运行，请准备 macOS 或 Windows、Node.js 22.12 或更新版本（建议 Node.js 24 LTS），以及 npm：
 
 ```powershell
 npm ci
 npm start
 ```
+
+**macOS 本机版：**在 Mac 上执行 `npm run package`，双击 `release/Weekwise-darwin-arm64/Weekwise.app`（Apple Silicon）。也可以把应用复制到“应用程序”文件夹。该构建使用本机临时签名，尚未进行 Developer ID 签名或 Apple 公证，不作为公开发行版。日常打开打包后的应用不需要 Node.js。
+
+Mac 上关闭窗口后应用继续运行，可从 Dock 或菜单栏重新打开；`⌘Q` 完全退出并停止提醒。`⌘N` 新建任务、`⌘K` 搜索、`⌘,` 打开设置。浮窗与提醒窗口设置为在各桌面和全屏空间显示，具体表现需在使用的显示器与桌面布局中验证。
 
 1. 打开「规划设置与备份」，填写 DeepSeek API 密钥、每天可用时间与基础作息。设置自动保存。
 2. 点击「自然语言规划」，描述任务，点击「拆分并安排」。检查数量、日期和耗时，再添加每日任务。
@@ -48,12 +52,17 @@ AI 功能使用你自己的 DeepSeek API 额度；不配置密钥也能手动管
 
 ## 数据与开发
 
-任务默认保存在本机 `%APPDATA%\Weekwise`，支持 JSON 备份。API 密钥通过 Windows 加密保存，不包含在任务备份中。使用 AI 时，相关描述与任务信息会发送给 DeepSeek。提醒需要电脑开机且应用正在运行。
+任务默认保存在 Windows 的 `%APPDATA%\Weekwise`，或 macOS 的 `~/Library/Application Support/Weekwise`，支持跨平台 JSON 备份。API 密钥通过操作系统加密保存（Mac 使用钥匙串），不包含在任务备份中；从 Windows 迁入 Mac 后需重新填写密钥。使用 AI 时，相关描述与任务信息会发送给 DeepSeek。提醒需要电脑开机且应用正在运行。
 
 ```powershell
 npm test          # 单元测试，使用模拟 AI 响应
-npm run package   # 生成 release/Weekwise-win32-x64，整个目录一起保留
+npm run test:desktop # 桌面回归，隔离测试数据；AI 使用模拟响应
+npm run package   # 按本机平台生成 macOS .app 或 Windows 免安装目录
 ```
+
+测试可用 `WEEKWISE_EXECUTABLE` 指定打包后应用的可执行文件；Mac 路径是 `.app/Contents/MacOS/Weekwise`。桌面测试会短暂显示窗口、使用测试密钥验证系统加密，可能触发钥匙串授权；不会读取正式任务或消耗 DeepSeek 额度。Mac 图标可通过 `npm run icons:mac` 重新生成，需要系统命令行工具。
+
+macOS 验证环境：Sequoia 15.7.1、Apple Silicon arm64，开启台前调度；84 项单元测试与打包版全部 10 组桌面回归通过。其他 Mac 机型、系统版本和多显示器布局尚未逐一验证。
 
 源码在 `src/` 与 `desktop/`，开发脚本在 `scripts/`，测试在 `tests/`。构建产物、缓存、测试临时数据和本机凭据不提交 Git。
 

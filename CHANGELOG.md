@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.1.1 — macOS 本机适配
+
+- 增加 Apple Silicon macOS `.app` 打包、本机临时签名、应用与菜单栏图标。
+- 增加 macOS 菜单、Command 快捷键及 Dock 重开主窗口；关窗后保留后台，退出应用才停止提醒。
+- 浮窗与提醒窗口适配 macOS Spaces；主窗口尺寸适应屏幕工作区。
+- 密钥说明适配 macOS 钥匙串，任务与备份格式继续兼容 Windows。
+- 桌面测试取消 Windows 可执行文件路径假设，新增 Mac 菜单、生命周期、备份和钥匙串重启验证。
+
 ## v0.1.0
 
 首个 GitHub 基线版本 / First GitHub baseline.

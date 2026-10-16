@@ -1,12 +1,12 @@
 const {createRequire}=require('node:module'),path=require('node:path'),fs=require('node:fs/promises'),assert=require('node:assert/strict');
-const runtimeRequire=createRequire(path.join(process.env.PLAYWRIGHT_MODULE,'package.json'));
+const runtimeRequire=process.env.PLAYWRIGHT_MODULE?createRequire(path.join(process.env.PLAYWRIGHT_MODULE,'package.json')):require;
 const {_electron}=runtimeRequire('playwright');
 (async()=>{
   const root=path.resolve(__dirname,'..'),dir=path.join(root,'test-results',`categories-${Date.now()}`);
   const now=new Date(),date=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   const task={id:'old',title:'旧任务',minutes:30,priority:'medium',due:null,scheduled:date,done:false,locked:false,notes:''};
   await fs.mkdir(dir,{recursive:true});await fs.writeFile(path.join(dir,'tasks.json'),JSON.stringify({version:1,tasks:[task],settings:{capacities:[480,480,480,480,480,480,480],preferences:''}}));
-  const app=await _electron.launch({executablePath:process.env.WEEKWISE_EXECUTABLE,args:[],env:{...process.env,WEEKWISE_TEST:'1',WEEKWISE_DATA_DIR:dir},timeout:30000});
+  const app=await _electron.launch({executablePath:process.env.WEEKWISE_EXECUTABLE||require('electron'),args:process.env.WEEKWISE_EXECUTABLE?[]:[root],env:{...process.env,WEEKWISE_TEST:'1',WEEKWISE_DATA_DIR:dir},timeout:30000});
   let page; const errors=[];
   try {
     page=await app.firstWindow();page.setDefaultTimeout(20000);page.on('pageerror',e=>errors.push(e.message));await page.waitForSelector('.week-board');

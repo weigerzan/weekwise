@@ -1,14 +1,14 @@
 # Weekwise · 拾周
 
-English | [中文](README.zh-CN.md) · v0.1.0
+English | [中文](README.zh-CN.md) · v0.1.1
 
 [Download Windows portable build (x64)](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip)
 
 **You know what needs doing. Weekwise helps you decide how much to do each day.**
 
-**Currently supports Windows only. The application UI is in Chinese.**
+**Supports Windows and macOS. The application UI is in Chinese. The macOS build initially targets local use on Apple Silicon.**
 
-A Windows desktop task planner powered by DeepSeek. Describe concrete tasks, workloads, and rough deadlines to get daily tasks you can check off. Adjust the plan yourself and record the time you actually spend.
+A desktop task planner powered by DeepSeek. Describe concrete tasks, workloads, and rough deadlines to get daily tasks you can check off. Adjust the plan yourself and record the time you actually spend.
 
 ![Turn a busy workload into a clear plan for each day.](docs/assets/what-weekwise-does.png)
 
@@ -33,12 +33,16 @@ If all you have is a distant ambition, define the work first. “I want to submi
 
 **Portable build (recommended):** [Download the ZIP](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip), extract the whole folder, and double-click `Weekwise.exe` or `启动拾周.cmd`. No installation or Node.js is required. Keep the executable and all accompanying files together.
 
-To run from source instead, use Windows, Node.js 22.12 or newer, and npm:
+To run from source instead, use macOS or Windows, Node.js 22.12 or newer (Node.js 24 LTS recommended), and npm:
 
 ```powershell
 npm ci
 npm start
 ```
+
+**macOS local build:** run `npm run package` on your Mac, then open `release/Weekwise-darwin-arm64/Weekwise.app` on Apple Silicon. You may copy the app to Applications. The build is ad-hoc signed for local use, without Developer ID signing or Apple notarization. The packaged app does not need Node.js installed.
+
+On macOS, closing every window leaves the menu-bar app running. Reopen from the Dock or status menu; use `⌘Q` to quit and stop reminders. `⌘N` creates a task, `⌘K` searches, and `⌘,` opens settings. Floating windows are configured to appear across Spaces, including full-screen Spaces; verify their behavior with your display setup.
 
 1. Open the settings dialog (「规划设置与备份」). Set your DeepSeek API key, daily availability, and usual work hours. Changes save automatically.
 2. Open natural-language planning (「自然语言规划」), describe the work, and generate a plan. Review quantities, dates, and durations before adding tasks.
@@ -48,12 +52,17 @@ AI features use your own DeepSeek API credits. Manual task management works with
 
 ## Data and development
 
-Tasks are stored locally in `%APPDATA%\Weekwise` with JSON backup support. API keys are encrypted by Windows and excluded from task backups. AI requests send the relevant descriptions and task information to DeepSeek. Reminders require the computer to be awake and the application to be running.
+Tasks are stored locally in `%APPDATA%\Weekwise` on Windows or `~/Library/Application Support/Weekwise` on macOS, with cross-platform JSON backup support. API keys use OS encryption (Keychain on macOS) and are excluded from task backups. Enter your key again after moving between operating systems. AI requests send the relevant descriptions and task information to DeepSeek. Reminders require the computer to be awake and the application to be running.
 
 ```powershell
 npm test          # Unit tests with mocked AI responses
-npm run package   # Build release/Weekwise-win32-x64; keep the whole folder
+npm run test:desktop # Isolated desktop regression tests; mocked AI responses
+npm run package   # Build a macOS .app or Windows portable folder on the host OS
 ```
+
+Set `WEEKWISE_EXECUTABLE` to test a packaged executable (`.app/Contents/MacOS/Weekwise` on Mac). Desktop tests show temporary windows and use fake keys to verify OS encryption, which may prompt for Keychain access. They do not read production tasks or spend API credits. Regenerate the Mac icons with `npm run icons:mac` (requires macOS command-line tools).
+
+Validated on macOS Sequoia 15.7.1, Apple Silicon arm64, with Stage Manager enabled: all 84 unit tests and all 10 packaged desktop regression suites pass. Other Mac hardware, OS versions, and multi-display arrangements have not been individually verified.
 
 Application code lives in `src/` and `desktop/`, development scripts in `scripts/`, and tests in `tests/`. Build output, caches, temporary test data, and local credentials are excluded from Git.
 

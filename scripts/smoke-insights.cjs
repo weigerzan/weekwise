@@ -18,7 +18,7 @@ const {_electron}=runtimeRequire('playwright');
   for(let i=2;i<100;i++)if(i%5!==0)tasks.push({...base,id:`history-${i}`,title:`历史审稿 ${i}`,scheduled:addDays(today,-i),completedOn:addDays(today,-i),done:true,actualMinutes:30+(i*37)%270});
   const initial={version:1,settings:{capacities:[240,240,240,240,240,240,240],preferences:''},tasks};
   await fs.mkdir(directory,{recursive:true});await fs.writeFile(path.join(directory,'tasks.json'),JSON.stringify(initial));
-  const app=await _electron.launch({executablePath:process.env.WEEKWISE_EXECUTABLE||path.join(root,'node_modules','electron','dist','electron.exe'),args:process.env.WEEKWISE_EXECUTABLE?[]:[root],env:{...process.env,WEEKWISE_TEST:'1',WEEKWISE_DATA_DIR:directory},timeout:30000});
+  const app=await _electron.launch({executablePath:process.env.WEEKWISE_EXECUTABLE||require('electron'),args:process.env.WEEKWISE_EXECUTABLE?[]:[root],env:{...process.env,WEEKWISE_TEST:'1',WEEKWISE_DATA_DIR:directory},timeout:30000});
   let page;const errors=[];
   try{
     page=await app.firstWindow();page.setDefaultTimeout(15000);page.on('pageerror',e=>errors.push(e.message));await page.waitForSelector('.week-board');
