@@ -2,7 +2,7 @@
 
 English | [中文](README.zh-CN.md) · v0.1.1
 
-[Download Windows portable build (x64)](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip) · [Mac users: build from source](#build-from-source-on-macos)
+[Download Windows portable build (x64)](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip) · [Download Mac test build (Apple Silicon)](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.1-macos-arm64.zip) · [Build for Mac from source](#build-from-source-on-macos)
 
 **You know what needs doing. Weekwise helps you decide how much to do each day.**
 
@@ -33,7 +33,7 @@ If all you have is a distant ambition, define the work first. “I want to submi
 
 **Windows portable build:** [Download the ZIP](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip), extract the whole folder, and double-click `Weekwise.exe` or `启动拾周.cmd`. No installation or Node.js is required. Keep the executable and all accompanying files together.
 
-**macOS local build:** follow the [source build instructions](#build-from-source-on-macos) below to create `Weekwise.app`. Copy it to Applications for everyday use without opening Terminal.
+**macOS test build:** [download the Mac ZIP](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.1-macos-arm64.zip) and follow the [direct installation instructions](#use-the-macos-app-from-releases). You can also [build `Weekwise.app` from source](#build-from-source-on-macos).
 
 On macOS, closing every window leaves the menu-bar app running. Reopen from the Dock or status menu; use `⌘Q` to quit and stop reminders. `⌘N` creates a task, `⌘K` searches, and `⌘,` opens settings. Floating windows are configured to appear across Spaces, including full-screen Spaces; verify their behavior with your display setup.
 
@@ -42,6 +42,23 @@ On macOS, closing every window leaves the menu-bar app running. Reopen from the 
 3. Adjust the board, open the minimal widget (「极简浮窗」), and check off the day's tasks.
 
 AI features use your own DeepSeek API credits. Manual task management works without an API key.
+
+## Use the macOS app from Releases
+
+The existing [Weekwise v0.1.0 Release](https://github.com/weigerzan/weekwise/releases/tag/v0.1.0) includes `Weekwise-v0.1.1-macos-arm64.zip`. This attachment is a **Mac test build, app version 0.1.1**, built from the `macos` branch. The original Windows build and `v0.1.0` tag are unchanged. GitHub's automatically generated “Source code” archives contain source files; download the app ZIP containing `macos-arm64` in its name instead.
+
+- **Hardware:** Apple Silicon Macs (M series), not Intel Macs. Verified on macOS Sequoia 15.7.1; other OS versions have not been tested on hardware.
+- **No development tools needed:** Node.js, Electron, Xcode, and an Apple Developer account are not required.
+- **Signing:** ad-hoc signed, without Developer ID signing or Apple notarization. macOS may block the first launch.
+
+Installation and first launch:
+
+1. Download and unzip the archive, then drag the complete `Weekwise.app` into Applications. You do not need to open the app bundle to find an executable.
+2. Double-click to launch. If macOS says the developer cannot be verified or Apple cannot check for malicious software, dismiss the alert.
+3. Once you have confirmed the download is from this repository and has not been tampered with, open **System Settings → Privacy & Security**, find Weekwise, click **Open Anyway**, and confirm as prompted. After approval, you can usually launch it by double-clicking. [Apple instructions](https://support.apple.com/102445)
+4. Enter your own DeepSeek API key in settings (「规划设置与备份」) and wait for it to save automatically. Skip this for manual task management.
+
+If “Open Anyway” is unavailable or macOS reports a damaged file, download it again and compare its SHA-256 with the Release notes. If the issue persists, build from source on your Mac using the steps below. Organization-managed Macs may restrict app overrides; follow your organization's policies.
 
 ## Build from source on macOS
 

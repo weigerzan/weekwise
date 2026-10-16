@@ -2,7 +2,7 @@
 
 [English](README.md) | 中文 · v0.1.1
 
-[下载 Windows 免安装版（x64）](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip) · [Mac 用户：从源码构建](#macos-从源码构建)
+[下载 Windows 免安装版（x64）](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip) · [下载 Mac 测试版（Apple Silicon）](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.1-macos-arm64.zip) · [Mac 源码构建](#macos-从源码构建)
 
 **你知道要做什么，拾周帮你安排每天做多少。**
 
@@ -33,7 +33,7 @@
 
 **Windows 免安装版：**[下载压缩包](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip)，完整解压后双击 `Weekwise.exe` 或 `启动拾周.cmd` 即可使用，无需安装 Node.js。整个目录需一起保留，请勿单独移动 exe 文件。
 
-**macOS 本机版：**按下方的[源码构建步骤](#macos-从源码构建)生成 `Weekwise.app`，复制到“应用程序”后即可日常使用，无需每次打开终端。
+**macOS 测试版：**[下载 Mac ZIP](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.1-macos-arm64.zip)，按下方的[直接安装步骤](#macos-直接使用-release-中的应用)使用。也可以按[源码构建步骤](#macos-从源码构建)自行生成 `Weekwise.app`。
 
 Mac 上关闭窗口后应用继续运行，可从 Dock 或菜单栏重新打开；`⌘Q` 完全退出并停止提醒。`⌘N` 新建任务、`⌘K` 搜索、`⌘,` 打开设置。浮窗与提醒窗口设置为在各桌面和全屏空间显示，具体表现需在使用的显示器与桌面布局中验证。
 
@@ -42,6 +42,23 @@ Mac 上关闭窗口后应用继续运行，可从 Dock 或菜单栏重新打开�
 3. 在看板中调整安排，打开「极简浮窗」，做完当天任务后打勾。
 
 AI 功能使用你自己的 DeepSeek API 额度；不配置密钥也能手动管理任务。
+
+## macOS 直接使用 Release 中的应用
+
+[Weekwise v0.1.0 Release](https://github.com/weigerzan/weekwise/releases/tag/v0.1.0) 附有 `Weekwise-v0.1.1-macos-arm64.zip`。这个附件是从 `macos` 分支构建的 **Mac 测试版，应用版本为 0.1.1**；Release 中原有的 Windows 版及 `v0.1.0` 标签保持不变。页面自动生成的 “Source code” 压缩包是源码，请下载带 `macos-arm64` 的应用 ZIP。
+
+- **适用机型：**Apple 芯片 Mac（M 系列），不适用于 Intel Mac。已验证 macOS Sequoia 15.7.1，其他系统版本尚未实机验证。
+- **无需开发环境：**不需要安装 Node.js、Electron 或 Xcode，也不需要 Apple 开发者账号。
+- **签名状态：**使用临时签名，未进行 Developer ID 签名或 Apple 公证，首次打开可能被系统拦截。
+
+安装与首次打开：
+
+1. 下载并解压 ZIP，将其中完整的 `Weekwise.app` 拖入“应用程序”文件夹；无需进入 `.app` 内部寻找可执行文件。
+2. 双击打开。如果提示无法验证开发者或 Apple 无法检查恶意软件，先关闭提示。
+3. 确认文件来自本仓库且未被篡改后，进入“系统设置 → 隐私与安全性”，找到 Weekwise 并点击“仍要打开”，再按系统提示确认。成功允许后，通常即可直接双击使用。[Apple 操作说明](https://support.apple.com/zh-cn/102445)
+4. 在「规划设置与备份」中填写自己的 DeepSeek API 密钥，等待自动保存。只使用手动任务功能可跳过。
+
+如果系统未提供“仍要打开”，或提示文件损坏，请先重新下载并核对 Release 中的 SHA-256；仍有问题时可按下方步骤在本机从源码构建。受组织管理的 Mac 可能限制手动允许应用，需遵循其管理策略。
 
 ## macOS 从源码构建
 
