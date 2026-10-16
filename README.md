@@ -2,7 +2,7 @@
 
 English | [中文](README.zh-CN.md) · v0.1.1
 
-[Download Windows portable build (x64)](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip)
+[Download Windows portable build (x64)](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip) · [Mac users: build from source](#build-from-source-on-macos)
 
 **You know what needs doing. Weekwise helps you decide how much to do each day.**
 
@@ -31,16 +31,9 @@ If all you have is a distant ambition, define the work first. “I want to submi
 
 ## Get started
 
-**Portable build (recommended):** [Download the ZIP](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip), extract the whole folder, and double-click `Weekwise.exe` or `启动拾周.cmd`. No installation or Node.js is required. Keep the executable and all accompanying files together.
+**Windows portable build:** [Download the ZIP](https://github.com/weigerzan/weekwise/releases/download/v0.1.0/Weekwise-v0.1.0-windows-x64.zip), extract the whole folder, and double-click `Weekwise.exe` or `启动拾周.cmd`. No installation or Node.js is required. Keep the executable and all accompanying files together.
 
-To run from source instead, use macOS or Windows, Node.js 22.12 or newer (Node.js 24 LTS recommended), and npm:
-
-```powershell
-npm ci
-npm start
-```
-
-**macOS local build:** run `npm run package` on your Mac, then open `release/Weekwise-darwin-arm64/Weekwise.app` on Apple Silicon. You may copy the app to Applications. The build is ad-hoc signed for local use, without Developer ID signing or Apple notarization. The packaged app does not need Node.js installed.
+**macOS local build:** follow the [source build instructions](#build-from-source-on-macos) below to create `Weekwise.app`. Copy it to Applications for everyday use without opening Terminal.
 
 On macOS, closing every window leaves the menu-bar app running. Reopen from the Dock or status menu; use `⌘Q` to quit and stop reminders. `⌘N` creates a task, `⌘K` searches, and `⌘,` opens settings. Floating windows are configured to appear across Spaces, including full-screen Spaces; verify their behavior with your display setup.
 
@@ -50,7 +43,85 @@ On macOS, closing every window leaves the menu-bar app running. Reopen from the 
 
 AI features use your own DeepSeek API credits. Manual task management works without an API key.
 
+## Build from source on macOS
+
+Other Mac users can download the `macos` branch and build on their own machine. A paid Apple Developer account is not required, and you do not need to compile Electron itself. npm downloads the project dependencies and prebuilt Electron runtime; the packaging script bundles the runtime into a standalone `.app`.
+
+### 1. Prepare your Mac
+
+- **System:** verified on macOS Sequoia 15.7.1 with Apple Silicon. Other OS versions and Intel Macs have not been tested on hardware.
+- **Command-line tools:** install Apple Command Line Tools for Git and related tools; full Xcode is not required. If they are missing, run the command below in Terminal and wait for the system installer to finish. If already installed, continue to the next step. [Apple installation guide](https://developer.apple.com/documentation/xcode/installing-the-command-line-tools/)
+- **Node.js and npm:** install Node.js 24 LTS, including npm, from the [Node.js website](https://nodejs.org/en/download). The minimum supported Node.js version is 22.12. Use native arm64 Node.js on Apple Silicon and x64 on Intel.
+
+```bash
+xcode-select --install
+```
+
+Open a new Terminal window after installation and check the environment:
+
+```bash
+git --version
+node --version
+npm --version
+node -p 'process.arch'
+```
+
+The last command should print `arm64` on Apple Silicon or `x64` on Intel. The build uses the architecture of Node.js. On Apple Silicon, use native Node.js and turn off Terminal's “Open using Rosetta” option to avoid building an Intel app.
+
+### 2. Download and build
+
+Run these commands in the directory where you want to keep the project:
+
+```bash
+git clone --branch macos --single-branch https://github.com/weigerzan/weekwise.git
+cd weekwise
+npm ci
+npm run package
+open release
+```
+
+`npm ci` installs the development and packaging dependencies from the committed lockfile; do not add `--omit=dev`. The first build also downloads Electron, which may take time depending on your connection. On success, Finder opens the `release` folder:
+
+| Local Node.js architecture | Generated application |
+| --- | --- |
+| `arm64` (Apple Silicon) | `release/Weekwise-darwin-arm64/Weekwise.app` |
+| `x64` (Intel) | `release/Weekwise-darwin-x64/Weekwise.app` (not yet tested on hardware) |
+
+Drag `Weekwise.app` into Applications and double-click it to launch. The packaged app includes its runtime and does not need Node.js or the source directory for everyday use. Icons are already included in the repository; you do not need to regenerate them.
+
+The script automatically applies and verifies an ad-hoc signature, without Developer ID signing or Apple notarization. Building for your own Mac does not require purchasing a certificate. Sharing the resulting app as a download may still trigger macOS security prompts. If macOS blocks it, follow [Apple's first-launch instructions](https://support.apple.com/102445) only when you trust its source and know it has not been tampered with.
+
+On first launch, enter your own DeepSeek API key in settings (「规划设置与备份」) and allow it to save automatically. No API key is included in the source or build; do not put it in source files or an `.env` file. Manual task management works without a key.
+
+### 3. Run during development or update
+
+To launch directly from source, run `npm start` in the project directory; packaging is optional. Development and packaged versions share the local task directory. Quit the running version with `⌘Q` before switching to avoid concurrent writes. Their Keychain identities may differ; re-enter your key in settings if decryption fails after switching.
+
+To update your clone, export a task backup in the app and quit it, then run these commands in the project directory:
+
+```bash
+git pull --ff-only
+npm ci
+npm run package
+open release
+```
+
+Replace the old app in Applications with the newly built `.app`. Tasks are stored outside the source directory and are not deleted by rebuilding. Preserve any source changes you have made before updating.
+
+### If Electron downloads are slow
+
+From the project directory, use the [mirror listed in Electron's documentation](https://www.electronjs.org/docs/latest/tutorial/installation#mirror):
+
+```bash
+export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+export ELECTRON_CUSTOM_DIR='{{ version }}'
+node node_modules/electron/install.js
+npm run package
+```
+
 ## Data and development
+
+Running from source on Windows also uses Node.js 24 LTS (minimum 22.12) and npm. After cloning the repository, run `npm ci` followed by `npm start` in the project directory.
 
 Tasks are stored locally in `%APPDATA%\Weekwise` on Windows or `~/Library/Application Support/Weekwise` on macOS, with cross-platform JSON backup support. API keys use OS encryption (Keychain on macOS) and are excluded from task backups. Enter your key again after moving between operating systems. AI requests send the relevant descriptions and task information to DeepSeek. Reminders require the computer to be awake and the application to be running.
 
